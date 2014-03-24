@@ -1,0 +1,7 @@
+include "commonDriverSupport.dbd"
+include "simDetectorSupport.dbd"
+
+include "PVAServerRegister.dbd"
+include "registerChannelProviderLocal.dbd"
+include "dbPv.dbd"
+registrar("pvaAsynRegister")

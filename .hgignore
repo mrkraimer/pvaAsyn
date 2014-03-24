@@ -1,0 +1,14 @@
+include/
+bin/
+lib/
+doc/
+db/
+dbd/
+documentation/html
+RELEASE*.local*
+envPaths
+O.*/
+autosave
+./*.swp
+cdCommands
+dllPath.bat
