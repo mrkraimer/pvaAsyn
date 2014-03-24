@@ -12,3 +12,6 @@ autosave
 ./*.swp
 cdCommands
 dllPath.bat
+auto_settings.sav*
+./*~
+
