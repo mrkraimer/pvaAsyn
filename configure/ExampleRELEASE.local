@@ -1,6 +1,6 @@
 AREA_DETECTOR=/home/git/areaDetector
-include $(AREA_DETECTOR)/RELEASE_PATHS.local
-include $(AREA_DETECTOR)/RELEASE_PRODS.local
+include $(AREA_DETECTOR)/configure/RELEASE_PATHS.local
+include $(AREA_DETECTOR)/configure/RELEASE_PRODS.local
 
 EPICSV4HOME=/home/hg
 PVCOMMON=${EPICSV4HOME}/pvCommonCPP
