@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+  <title>EPICS pvaAsyn</title>
+  <link rel="stylesheet" type="text/css"
+  href="http://epics-pvdata.sourceforge.net/base.css" />
+  <link rel="stylesheet" type="text/css"
+  href="http://epics-pvdata.sourceforge.net/epicsv4.css" />
+  <style type="text/css">
+/*<![CDATA[*/
+     .about { margin-left: 3em; margin-right: 3em; font-size: .83em}
+     table { margin-left: auto; margin-right: auto }
+     .diagram { text-align: center; margin: 2.5em 0 }
+     body { margin-right: 10% }
+/*]]>*/</style>
+
+ <!-- Script that generates the Table of Contents -->
+  <script type="text/javascript" src="http://epics-pvdata.sourceforge.net/script/tocgen.js"></script>
+
+</head>
+
+<body>
+
+<div class="head">
+<h1>EPICS pvaAsyn</h1>
+<!-- Maturity: Working Draft or Request for Comments, or Recommendation, and date.  -->
+<h2 class="nocount">EPICS V4 Working Group, Working Draft,
+2014-07-03</h2>
+<dl>
+  <dt>Latest version:</dt>
+    <dd><a
+      href="pvaAsyn.html">pvaAsyn.html
+      </a></dd>
+  <dt>This version:</dt>
+    <dd><a
+      href="pvaAsyn_20140703.html">pvaAsyn_20140703.html
+      </a></dd>
+  <dt>Previous version:</dt>
+    <dd>none</dd>
+  <dt>Editors:</dt>
+    <dd>Marty Kraimer, BNL</dd>
+</dl>
+
+<h2 class="nocount">Abstract</h2>
+
+
+
+<h2 class="nocount">Status of this Document and of the pvaAsyn Software</h2>
+
+<p>This is the July 03, 2014 revision of the EPICS EasyPVA document.</p>
+
+</div> <!-- head -->
+
+<div id="toc">
+  <h2 class="nocount">Table of Contents</h2>
+</div>
+
+<!-- Place what you would like in the Table of Contents, inside the contents div -->
+<div id="contents" class="contents">	  
+<hr />
+
+<h2>Prologue - areaDetector and EPICS V4</h2>
+<p>The areaDetector software that was stated by Mark Rivers and is
+now being developed by Mark and others is widely used by the EPICS
+Beam Line Community.
+</p>
+<p>David Hickin from Diamond has implemented areaDetector plugins that
+allow image data to be transfered over the network via pvAccess.
+The data appears as normative type NTNDArray data.
+One plugin converts NDArray data to NTNDArray, which resides in a pvDatabase record.
+Another plugin gets the NTNDArray, via pvAccess, and acts like it is the detector,
+i. e. it converts the NTNDArray to NDArray data stored in an asynDiver port.
+</p>
+<p>pvaAsyn is an attempt to show that EPICS V4 can be used to provide
+other support for the areaDetector.
+In fact it can provide support for any software that is based on asynDriver.
+This is why this project is names pvaAsyn instead of some name asscociated
+with areaDetector.
+</p>
+<p>asynDriver is a software layer that is mostly independent of epics
+iocCore records and device support.
+It is based on the concept of a port and port drivers.
+A port is identified by a name.
+A portDriver implements semantics for the port.
+It implements one or more standard interfaces and can have a set
+of parameter names associated with each interface.
+Thus a port is seen by client code as something that has a port name
+and a set of variables each of which is accessed via a parameter name
+and one of the standard interfaces.
+</p>
+<p>devEpics, a component of asynDriver,
+ provides a set of standared device support modules
+that connect an iocCore record to a port and a parameter.
+The record type is determined by the interface type.
+For example if the interface is asynFloat64 then the record type will be ai or ao.
+An areaDetector application normally has many ports and
+each port has many parameters.
+For example in the simDetector application, the SIM1 port has 94 parameters.
+The normal way to access these parameters is via iocCore records.
+Thus for SIM1 approximately 94 records are required.
+Since an areaDetector instance ususlly has many ports many records
+are required.
+The simDetector (Simulted Detector) application that comes with
+areaDetector has 2523 records.
+<p>
+The data for a parameter must only be accessed with the port locked.
+With the standard epics records and device support each parameter
+access results in locking the port, accessing the data, and unlocking
+the port.
+This also means that it is not possible to access multiple parameters
+as a synchronous set of data.
+</p>
+</p>
+<p>What EPICS V4 can contribute is the ability to access a set
+of parameters connected to a port as synchronous set of data
+With pvaAsyn multiple parameters can be accessed via a single V4 record.
+Also when changing parameter values pvaAsyn changes all the values with the
+port locked. Thus all parameter changes are synchronous.
+</p>
+<p>pvaAsyn is currently only a proof of concept.
+It allows simultaneously changing a set of parameters.
+It should also monitor for changes.
+</p>
+
+<h2>Prologue - areaDetector and CSS</h2>
+<p>The example below uses CSS to control the epics records connected
+to an areaDetector application.
+The example uses ImageJ to display the images.
+areaDetector provides an ImageJ plugin that connects ImageJ to
+the set of records required for image display.
+The example uses pvget and pvput to access the pvaAsyn records that
+connect to areaDetector ports.
+</p>
+<p>The following CSS plugin would be nice to have.</p>
+<dl>
+   <dt>Image Display</dt>
+     <dd>This would get data via NTNDArray, i. e. from
+      pvDatabase records created by David Hickins software.
+      It would then display the image within the CSS framework.
+     </dd>
+   <dt>pvaAsyn</dt>
+     <dd>When pvaAsyn is more muture it will be time to think
+     of creating CSS plugins for accessing the associated pvDatabase
+     records.
+     </dd>
+</dl>
+
+
+<h2>Introduction</h2>
+<p>pvaAsyn implements pvDatabase records that connect to asynDriver ports.
+Each record instance connects to a single port.
+A record is configured by specfyinng a port name and a list of parameter names.
+Each parameter name must be a parameter that the port supports.
+For now pvaAsyn is only useful for setting parameter values.
+In the future monitoring should also be implemented.</p>
+
+<h2>Installation and Starting Example Database</h2>
+<p>pvaAsyn requires that the following have all been built:
+pvCommonCPP, pvDataCPP, pvAccessCPP, pvDatabaseCPP, pvaSrv, and areaDetector.
+After they have been built then, in configure, copy ExampleRELEASE.local to RELEASE.local.
+Edit it so that it has the correct path names.
+Then at the top level type:</p>
+<pre>
+make
+</pre>
+<p>After it has been build:</p>
+<pre>
+cd iocBoot/iocSimDetector
+../../bin/linux-x86_64/adioc st.cmd.linux
+</pre>
+<p>If not on linux see that areaDetector documentation for how to start the ioc.</p>
+<p>What is running is the simDetector ioc that comes with areaDetector,
+but in addition there are three pvDatabase records:</p>
+<dl>
+   <dt>image1Port</dt>
+     <dd>This is used to set values for the asyn port "Image1". It has the fields:
+     <pre>
+    string[] name [ENABLE_CALLBACKS,NDARRAY_PORT]
+    string[] value [1,SIM1]
+    string[] type [integer,string]
+    </pre>
+    </dd>
+   <dt>roi1Port</dt>
+     <dd>This is used to set values for the asyn port "ROI1". It has the fields:
+     <pre>
+    string[] name [ENABLE_CALLBACKS,DIM0_ENABLE,DIM1_ENABLE,DIM0_MIN,DIM1_MIN,DIM0_SIZE,DIM1_SIZE]
+    string[] value [0,1,1,0,0,1000000,1000000]
+    string[] type [integer,integer,integer,integer,integer,integer,integer]
+    </pre>
+    </dd>
+   <dt>sim1Port</dt>
+     <dd>This is used to set values for the asyn port "SIM1". It has the fields:
+     <pre>
+    string[] name [MIN_X,MIN_Y,SIZE_X,SIZE_Y,ACQUIRE,ARRAY_CALLBACKS]
+    string[] value [0,0,512,512,0,1]
+    string[] type [integer,integer,integer,integer,integer,integer]
+    </pre>
+    </dd>
+</dl>
+<p>For each record only the value field can be changed by a pvAccess client.
+When the client makes a change all values are made with the asyn port locked.
+Thus all changes are synchronous.</p>
+
+<h2>Example Database</h2>
+<p>The areaDetector documentation describes several ways for clients to
+control and monitor areaDetector applications.
+This section describes the following way:<p.
+<dl>
+   <dt>css</dt>
+     <dd>This is used to control the areaDetector.</dd>
+   <dt>ImageJ</dt>
+     <dd>This is used to display the images from the areaDetector.</dd>
+   <dt>pvput</dt>
+      <dd>This is used to access the pvDatabase record that can
+      control the simDetector port.</dd>
+</dl>
+<p>This assumes that you have installed css.
+Start it and then open the file at <b>/home/git/areaDetector/ADCore/ADApp/op/opi/autoconvert/ADTop.opi</b>.
+Then select simulator 1.
+The following appears:
+<center>
+<p><img src="./css.gif" alt="css" /></p>
+</center>
+</p>
+I also have installed ImageJ.
+When ImageJ is started the following appears:
+<center>
+<p><img src="./imagej.gif" alt="imagej" /></p>
+</center>
+In <b>/home/git/areaDetector/ADCore/Viewers/ImageJ</b> there is a plugin
+for ImageJ named <b>EPICS_areaDetector</b>.
+Import this into ImageJ.
+Select the areaDetector plugin.
+The following should appear:
+<center>
+<p><img src="./imagejAreaDetector.gif" alt="imagejAreaDetector" /></p>
+</center>
+On the css screen click start.
+On the ImageJ ADViewer screen click start
+The following should appear.
+</p>
+<p>
+<center>
+<p><img src="./image.gif" alt="image" /></p>
+</center>
+</p>
+You can use the css screen to change the image size.
+Change the x and y values on the css screen.
+Note that you can only change one at a time.
+</p>
+<p>
+In another window execute the command:
+<pre>
+pvget -r "field()" sim1Port
+</pre>
+The following is returned:
+<pre>
+sim1Port
+structure 
+    string[] name [MIN_X,MIN_Y,SIZE_X,SIZE_Y,ACQUIRE,ARRAY_CALLBACKS]
+    string[] value [0,0,1024,1024,1,1]
+    string[] type [integer,integer,integer,integer,integer,integer]
+</pre>
+<p>You can change the values by giving commands like:</p>
+<pre>
+pvput sim1Port 6 0 0 1024 1024 1 1
+</pre>
+and
+<pre>
+pvput sim1Port 6 0 0 256 256 1 
+</pre>
+Note that the image changes the size for both x and y at the same time.
+
+
+</div> <!-- class="contents" -->
+</body>
+</html>

@@ -56,7 +56,7 @@ extern "C" void AsynV4PutCallback(asynUser *pasynUser)
 }
 
 AsynInterfaceV4Ptr AsynInterfaceV4::create (
-    String const &portName,String const &attrNames)
+    std::string const &portName, std::string const &attrNames)
 {
     AsynInterfaceV4Ptr xxx(
         new AsynInterfaceV4(portName));
@@ -65,7 +65,7 @@ AsynInterfaceV4Ptr AsynInterfaceV4::create (
 }
 
 AsynInterfaceV4::AsynInterfaceV4 (
-    String const &portName)
+    std::string const &portName)
 : portName(portName),
   asynUserGet(NULL),
   asynUserPut(NULL)
@@ -92,7 +92,7 @@ AsynInterfaceV4::~AsynInterfaceV4()
     }
 }
 
-bool AsynInterfaceV4::init(String const &attrNames)
+bool AsynInterfaceV4::init( std::string const &attrNames)
 {
     if(portName.empty()) {
         cout << "portName is null";
@@ -130,18 +130,18 @@ bool AsynInterfaceV4::init(String const &attrNames)
         next = result+1;
     }
     size_t nattr = ncomma + 1;
-    attrName = shared_vector<String>(nattr);
-    attrValue = shared_vector<String>(nattr);
-    attrType = shared_vector<String>(nattr);
+    attrName = shared_vector<std::string>(nattr);
+    attrValue = shared_vector<std::string>(nattr);
+    attrType = shared_vector<std::string>(nattr);
     intValue = shared_vector<int>(nattr);
     doubleValue = shared_vector<double>(nattr);
-    stringValue = shared_vector<String>(nattr);
+    stringValue = shared_vector<std::string>(nattr);
     asynInterface = shared_vector<AsynInterfacePtr>(nattr);
     result = 0;
     next = 0;
     for(size_t i=0; i<nattr; ++i) {
         void       *drvPvt;
-        String rest = attrNames.substr(next);
+        std::string rest = attrNames.substr(next);
         result = rest.find(',');
         if(result!=string::npos) {
            rest = rest.substr(0,result);
@@ -189,7 +189,7 @@ bool AsynInterfaceV4::init(String const &attrNames)
                  pasynInterface = NULL;
             } else {
             intValue[i] = value;
-            attrType[i] = String("integer");
+            attrType[i] = std::string("integer");
             asynInterface[i]->pasynInt32 = pasynInt32;
             asynInterface[i]->type = typeInt;
             }
@@ -210,8 +210,8 @@ bool AsynInterfaceV4::init(String const &attrNames)
                 if(status!=asynSuccess) {
                      pasynInterface = NULL;
                 } else {
-                    attrType[i] = String("string");
-                    stringValue[i] = String(value);
+                    attrType[i] = std::string("string");
+                    stringValue[i] = std::string(value);
                     asynInterface[i]->pasynOctet = pasynOctet;
                     asynInterface[i]->type = typeString;
                 }
@@ -235,7 +235,7 @@ bool AsynInterfaceV4::init(String const &attrNames)
                    << pasynUser->errorMessage << endl;
                 return false;
             }
-            attrType[i] = String("float");
+            attrType[i] = std::string("float");
             doubleValue[i] = value;
             asynInterface[i]->pasynFloat64 = pasynFloat64;
             asynInterface[i]->type = typeDouble;
@@ -271,32 +271,32 @@ void AsynInterfaceV4::putAttr()
     event.wait();
 }
 
-shared_vector<const String> AsynInterfaceV4::getName()
+shared_vector<const std::string> AsynInterfaceV4::getName()
 {
-   shared_vector<String> copy(attrName);
+   shared_vector<std::string> copy(attrName);
    copy.make_unique();
-   shared_vector<const String> data(freeze(copy));
+   shared_vector<const std::string> data(freeze(copy));
    return data;
 }
 
-shared_vector<const String> AsynInterfaceV4::getValue()
+shared_vector<const std::string> AsynInterfaceV4::getValue()
 {
-   shared_vector<String> copy(attrValue);
+   shared_vector<std::string> copy(attrValue);
    copy.make_unique();
-   shared_vector<const String> data(freeze(copy));
+   shared_vector<const std::string> data(freeze(copy));
    return data;
 }
 
-shared_vector<const String> AsynInterfaceV4::getType()
+shared_vector<const std::string> AsynInterfaceV4::getType()
 {
-   shared_vector<String> copy(attrType);
+   shared_vector<std::string> copy(attrType);
    copy.make_unique();
-   shared_vector<const String> data(freeze(copy));
+   shared_vector<const std::string> data(freeze(copy));
    return data;
 }
 
 void AsynInterfaceV4::put(
-    shared_vector<const String> const &value)
+    shared_vector<const std::string> const &value)
 {
    size_t numAttr = attrValue.size();
    size_t num = value.size();
@@ -332,7 +332,7 @@ void AsynInterfaceV4::getCallback()
             if(status!=asynSuccess) {
                 cout << "AsynInterfaceV4::getAttr " << pasynUser->errorMessage << endl;
             } else {
-                stringValue[i] = String(value);
+                stringValue[i] = std::string(value);
                 attrValue[i] = stringValue[i];
             }
         } else if(asynInterface[i]->type==typeDouble) {

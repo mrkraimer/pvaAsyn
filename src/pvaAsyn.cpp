@@ -56,17 +56,17 @@ void PvaAsyn::create(
         cout<< "attrNames is null" << endl;
         return;
     }
-    String recordName(record);
-    String portName(port);
-    String attrName(attr);
+    std::string recordName(record);
+    std::string portName(port);
+    std::string attrName(attr);
     AsynInterfaceV4Ptr asynInterface(AsynInterfaceV4::create(portName,attr));
     if(asynInterface==NULL) return;
     asynInterface->getAttr();
-    shared_vector<const String> nameValue
+    shared_vector<const std::string> nameValue
         = asynInterface->getName();
-    shared_vector<const String> valueValue
+    shared_vector<const std::string> valueValue
         = asynInterface->getValue();
-    shared_vector<const String> typeValue
+    shared_vector<const std::string> typeValue
         = asynInterface->getType();
     FieldCreatePtr fieldCreate = getFieldCreate();
     PVDataCreatePtr pvDataCreate = getPVDataCreate();
@@ -96,7 +96,7 @@ void PvaAsyn::create(
 }
 
 PvaAsynRecordPtr PvaAsynRecord::create(
-        String const & recordName,
+        std::string const & recordName,
         PVStructurePtr const & pvStructure,
         AsynInterfaceV4Ptr const & asynInterface)
 {
@@ -136,7 +136,7 @@ void PvaAsynRecord::process()
     }
 }
 
-PvaAsynRecord::PvaAsynRecord(String const & recordName,
+PvaAsynRecord::PvaAsynRecord(std::string const & recordName,
         PVStructurePtr const & pvTop,
         AsynInterfaceV4Ptr const & asynInterface)
 : PVRecord(recordName,pvTop),

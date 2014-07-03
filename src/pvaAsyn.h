@@ -32,7 +32,7 @@ class epicsShareClass PvaAsynRecord :
 public:
     POINTER_DEFINITIONS(PvaAsynRecord);
     static PvaAsynRecordPtr create(
-        epics::pvData::String const & recordName,
+        std::string const & recordName,
         epics::pvData::PVStructurePtr const & pvStructure,
         epics::pvaAsyn::AsynInterfaceV4Ptr const & asynInterface);
     virtual ~PvaAsynRecord();
@@ -40,7 +40,7 @@ public:
     virtual bool init();
     virtual void process();
 private:
-    PvaAsynRecord(epics::pvData::String const & recordName,
+    PvaAsynRecord(std::string const & recordName,
         epics::pvData::PVStructurePtr const & pvTop,
         epics::pvaAsyn::AsynInterfaceV4Ptr const & asynInterface);
 

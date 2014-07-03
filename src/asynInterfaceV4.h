@@ -33,14 +33,14 @@ public:
     POINTER_DEFINITIONS(AsynInterfaceV4);
     ~AsynInterfaceV4();
     static AsynInterfaceV4Ptr create (
-        epics::pvData::String const &portName,
-        epics::pvData::String const &attrNames);
+        std::string const &portName,
+        std::string const &attrNames);
     void getAttr();
     void putAttr();
-    epics::pvData::shared_vector<const epics::pvData::String> getName();
-    epics::pvData::shared_vector<const epics::pvData::String> getValue();
-    epics::pvData::shared_vector<const epics::pvData::String> getType();
-    void put(epics::pvData::shared_vector<const epics::pvData::String> const &value);
+    epics::pvData::shared_vector<const std::string> getName();
+    epics::pvData::shared_vector<const std::string> getValue();
+    epics::pvData::shared_vector<const std::string> getType();
+    void put(epics::pvData::shared_vector<const std::string> const &value);
     void getCallback();
     void putCallback();
 private:
@@ -48,15 +48,15 @@ private:
     {
         return shared_from_this();
     }
-    AsynInterfaceV4(epics::pvData::String const &portName);
-    bool init(epics::pvData::String const &attrNames);
-    epics::pvData::String portName;
-    epics::pvData::shared_vector<epics::pvData::String> attrName;
-    epics::pvData::shared_vector<epics::pvData::String> attrValue;
-    epics::pvData::shared_vector<epics::pvData::String> attrType;
+    AsynInterfaceV4(std::string const &portName);
+    bool init(std::string const &attrNames);
+    std::string portName;
+    epics::pvData::shared_vector<std::string> attrName;
+    epics::pvData::shared_vector<std::string> attrValue;
+    epics::pvData::shared_vector<std::string> attrType;
     epics::pvData::shared_vector<epicsInt32> intValue;
     epics::pvData::shared_vector<epicsFloat64> doubleValue;
-    epics::pvData::shared_vector<epics::pvData::String> stringValue;
+    epics::pvData::shared_vector<std::string> stringValue;
     epics::pvData::shared_vector<AsynInterfacePtr> asynInterface;
     epics::pvData::Event event;
     asynUser *asynUserGet;
